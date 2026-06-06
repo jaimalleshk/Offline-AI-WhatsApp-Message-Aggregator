@@ -1,12 +1,38 @@
-# WhatsApp News Aggregation — Community Intelligence Report
+# Offline AI WhatsApp Message Aggregator
 
-Fully **offline** pipeline that scrapes WhatsApp groups matching a set of keywords,
-reads text **and images/event posters**, de-duplicates across groups, categorises,
-scores sentiment & conversation health, and produces a compact **professional
-HTML + PDF report**.
+Fully **offline** tool that reads **your own** WhatsApp groups, reads text **and
+images/event posters**, de-duplicates across groups, categorises, scores sentiment &
+conversation health, and produces a compact **professional HTML + PDF report**.
 
 **No cloud AI is used.** All language/vision/embedding work runs locally via
-[Ollama](https://ollama.com) (Qwen 2.5) + Tesseract OCR.
+[Ollama](https://ollama.com) (Qwen 2.5) + Tesseract OCR — nothing leaves your machine.
+
+## Why this exists
+
+If you're in **a lot of WhatsApp groups** and don't have time to scroll through all of
+them, this gives you an occasional **snapshot** — a once-in-a-while digest of what
+happened across your groups (key updates, events, discussions, sentiment), so you stay
+informed without reading every message. It is built for **personal use on your own
+account**.
+
+> ## ⚠️ Disclaimer — please read
+>
+> - **Personal & educational use only.** This tool is intended for an individual to
+>   summarise **their own** WhatsApp groups for personal convenience.
+> - **It is unofficial and against WhatsApp's Terms of Service.** Automating WhatsApp —
+>   even with your own account — violates the ToS. The main practical risk is a
+>   **temporary account ban**. Use it sparingly and **at your own risk**.
+> - **It is read-only.** It never sends, posts, joins, or modifies anything; it only
+>   reads messages already visible to your account. A "gentle mode" paces activity to
+>   look human.
+> - **Respect others' privacy.** Reports contain other people's messages, names, and
+>   photos. Keep them **private and local**. Do **not** publish or share reports that
+>   identify individuals. Where required (e.g. GDPR/CCPA), obtain consent.
+> - **You are solely responsible** for how you use this software and for complying with
+>   WhatsApp's terms and all applicable laws. The authors provide it **as-is, with no
+>   warranty** (see [LICENSE](LICENSE)) and accept **no liability**.
+> - Not affiliated with, endorsed by, or sponsored by WhatsApp LLC or Meta. "WhatsApp"
+>   is a trademark of its respective owner, used here only descriptively.
 
 ---
 
