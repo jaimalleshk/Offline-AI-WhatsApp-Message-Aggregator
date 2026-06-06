@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Riverside Community — WhatsApp Intelligence Report</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+    background:#f0eef9; color:#1a1a2e; line-height:1.6;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .wrapper{ max-width:720px; margin:28px auto; background:#fff; border-radius:16px;
+            overflow:hidden; border:1px solid #ddd9f5; }
+  @media print{ .wrapper{ margin:0 auto; border-radius:0; border:none; } }
+
+  /* HEADER */
+  .header{ background:#fff; border-bottom:1px solid #e8e4f8; padding:18px 30px;
+           display:flex; align-items:center; gap:14px; }
+  .header-circle{ width:46px; height:46px; border-radius:50%;
+    background:linear-gradient(135deg,#5b4fcf,#7b6fe0); display:flex; align-items:center;
+    justify-content:center; color:#fff; font-size:13px; font-weight:700; flex-shrink:0; letter-spacing:.5px; }
+  .header-title{ font-size:18px; font-weight:700; color:#1a1a2e; }
+  .header-sub{ font-size:12px; color:#7b72c8; margin-top:2px; }
+
+  /* HERO */
+  .hero{ background:linear-gradient(135deg,#5b4fcf 0%,#7b6fe0 100%); padding:30px 30px 28px; text-align:center; }
+  .hero-eyebrow{ font-size:11px; letter-spacing:1.6px; text-transform:uppercase;
+                 color:rgba(255,255,255,.7); margin-bottom:9px; }
+  .hero-title{ font-size:27px; font-weight:800; color:#fff; line-height:1.25; margin-bottom:10px; letter-spacing:-.3px; }
+  .hero-sub{ font-size:14px; color:rgba(255,255,255,.85); max-width:500px; margin:0 auto 18px; }
+  .hero-pills{ display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
+  .hero-pill{ font-size:12px; font-weight:600; background:rgba(255,255,255,.18); color:#fff;
+              padding:5px 14px; border-radius:20px; border:1px solid rgba(255,255,255,.3); }
+  .hero-pill.highlight{ background:#10b981; border-color:#10b981; }
+
+  /* SECTIONS */
+  .section{ padding:24px 30px; border-bottom:1px solid #f0eef9; }
+  .section.alt{ background:#faf9ff; }
+  .section-label{ font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase;
+                  color:#9f96de; margin-bottom:16px; }
+
+  /* LETTER / EXEC SUMMARY */
+  .letter p{ font-size:14.5px; color:#2d2b4e; line-height:1.75; }
+
+  /* KPI GRID */
+  .kpis{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .kpi{ background:#faf9ff; border:1px solid #ece8fb; border-radius:12px; padding:14px 16px; }
+  .kpi .v{ font-size:28px; font-weight:800; color:#5b4fcf; line-height:1; }
+  .kpi .l{ font-size:11px; color:#9f96de; text-transform:uppercase; letter-spacing:.4px; margin-top:6px; font-weight:600; }
+  .dedup-note{ font-size:12.5px; color:#4a4570; margin-top:14px; background:#ede9fe;
+               border-radius:10px; padding:11px 14px; }
+  .dedup-note b{ color:#5b4fcf; }
+
+  /* COLUMNS */
+  .row{ display:flex; gap:16px; align-items:flex-start; }
+  .col{ flex:1; min-width:0; }
+  .card{ border:1px solid #ece8fb; border-radius:12px; padding:14px 16px; }
+  .card h3{ font-size:12px; font-weight:700; color:#1a1a2e; text-transform:uppercase;
+            letter-spacing:.5px; margin-bottom:11px; }
+
+  /* TREND */
+  .trend{ display:flex; align-items:flex-end; gap:3px; height:120px; }
+  .trend .bcol{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+  .trend .bar{ width:74%; background:linear-gradient(180deg,#7b6fe0,#5b4fcf); border-radius:3px 3px 0 0; min-height:2px; }
+  .trend .bar.we{ background:linear-gradient(180deg,#34d399,#059669); }
+  .trend .d{ font-size:8px; color:#9f96de; margin-top:3px; white-space:nowrap; }
+  .trend .n{ font-size:8px; color:#7b72c8; font-weight:700; }
+
+  /* HORIZONTAL BARS */
+  .hb{ margin:7px 0; }
+  .hb .t{ display:flex; justify-content:space-between; font-size:12px; margin-bottom:3px; color:#2d2b4e; }
+  .hb .track{ background:#efecfb; border-radius:5px; height:13px; overflow:hidden; }
+  .hb .fill{ height:100%; background:#5b4fcf; border-radius:5px; }
+  .hb .fill.c0{background:#5b4fcf}.hb .fill.c1{background:#7b6fe0}.hb .fill.c2{background:#9f8ee8}
+  .hb .fill.c3{background:#10b981}.hb .fill.c4{background:#d97706}.hb .fill.c5{background:#c4b8f5}
+
+  /* SENTIMENT */
+  .stack{ display:flex; height:22px; border-radius:6px; overflow:hidden; margin:6px 0 9px; }
+  .stack .p{ background:#10b981; } .stack .n{ background:#c4b8f5; } .stack .g{ background:#ef4444; }
+  .legend{ display:flex; gap:16px; font-size:11px; color:#4a4570; flex-wrap:wrap; }
+  .legend i{ display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:middle; }
+  .gauge{ display:flex; gap:12px; margin-top:12px; }
+  .gauge .g1{ flex:1; background:#faf9ff; border-radius:10px; padding:9px 11px; text-align:center; }
+  .gauge .lab{ font-size:10px; color:#9f96de; text-transform:uppercase; letter-spacing:.3px; font-weight:600; }
+  .gauge .val{ font-size:22px; font-weight:800; color:#5b4fcf; margin-top:3px; }
+
+  /* TABLES */
+  table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  th{ text-align:left; color:#9f96de; font-size:10px; text-transform:uppercase; letter-spacing:.5px;
+      border-bottom:2px solid #ece8fb; padding:7px 8px; font-weight:700; }
+  td{ padding:7px 8px; border-bottom:1px solid #f3f0fc; vertical-align:top; color:#2d2b4e; }
+  tr:nth-child(even) td{ background:#faf9ff; }
+  .eng td:last-child{ text-align:right; font-weight:700; color:#5b4fcf; }
+
+  /* STORY CARDS (group digests) */
+  .story{ margin-bottom:18px; break-inside:avoid; }
+  .story:last-child{ margin-bottom:0; }
+  .story-header{ display:flex; gap:13px; align-items:flex-start; margin-bottom:8px; }
+  .story-icon{ width:40px; height:40px; border-radius:10px; flex-shrink:0; display:flex;
+               align-items:center; justify-content:center; font-size:17px; font-weight:800; color:#3730a3; }
+  .si0{ background:#ede9fe; } .si1{ background:#dbeafe; color:#1e40af; } .si2{ background:#dcfce7; color:#166534; }
+  .si3{ background:#fef3c7; color:#92400e; } .si4{ background:#fee2e2; color:#991b1b; } .si5{ background:#ccfbf1; color:#115e59; }
+  .story-title{ font-size:15px; font-weight:700; color:#1a1a2e; }
+  .story-meta{ font-size:11px; color:#9f96de; margin-top:2px; }
+  .story-text{ font-size:13.5px; color:#4a4570; line-height:1.65; }
+  .story ul{ margin:6px 0 4px 18px; } .story li{ font-size:12.5px; color:#4a4570; margin:2px 0; }
+  .story .rep{ font-size:11.5px; color:#7c3aed; margin-top:5px; }
+  .pill{ display:inline-block; padding:3px 11px; border-radius:20px; font-size:10.5px; font-weight:700;
+         text-transform:uppercase; letter-spacing:.3px; }
+  .p-Healthy,.p-Positive,.p-Mostly{ background:#dcfce7; color:#166534; }
+  .p-Mixed,.p-Differing{ background:#fef3c7; color:#92400e; }
+  .p-Argumentative,.p-Unhealthy{ background:#fee2e2; color:#991b1b; }
+
+  /* EVENTS CALENDAR */
+  .cal-event{ display:flex; gap:12px; align-items:flex-start; margin-bottom:13px; break-inside:avoid; }
+  .cal-date-badge{ min-width:46px; height:46px; background:#5b4fcf; border-radius:9px; display:flex;
+    flex-direction:column; align-items:center; justify-content:center; flex-shrink:0; }
+  .cal-date-badge.green{background:#059669}.cal-date-badge.amber{background:#d97706}
+  .cal-date-badge.coral{background:#dc2626}.cal-date-badge.teal{background:#0d9488}
+  .cal-date-badge.orange{background:#ea580c}.cal-date-badge.gray{background:#9aa7b2}
+  .cal-date-num{ font-size:13px; font-weight:800; color:#fff; line-height:1; }
+  .cal-date-mon{ font-size:8px; font-weight:700; color:rgba(255,255,255,.85); text-transform:uppercase; margin-top:2px; }
+  .cal-event-title{ font-size:13.5px; font-weight:700; color:#1a1a2e; }
+  .cal-event-loc{ font-size:11.5px; color:#9f96de; margin-top:2px; }
+  .cal-event-grp{ font-size:11px; color:#7b72c8; margin-top:1px; }
+  .cal-tag{ display:inline-block; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.4px;
+            padding:1px 7px; border-radius:10px; margin-left:6px; vertical-align:middle; }
+  .tag-up{ background:#dcfce7; color:#166534; } .tag-past{ background:#eef1f4; color:#74828f; }
+  .tag-und{ background:#fef3c7; color:#92400e; }
+
+  /* FOOTER */
+  .footer{ background:#f5f3ff; padding:22px 30px; border-top:1px solid #e8e4f8; }
+  .footer-title{ font-size:14px; font-weight:700; color:#5b4fcf; text-align:center; margin-bottom:8px; }
+  .footer-text{ font-size:11px; color:#9f96de; line-height:1.7; text-align:center; }
+  .sec-note{ font-size:11px; color:#9f96de; margin:-8px 0 12px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-circle">RC</div>
+    <div>
+      <div class="header-title">Riverside Community — WhatsApp Intelligence Report</div>
+      <div class="header-sub">Sample Report · Synthetic Data · Riverside Community</div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">Reporting period · 01 Jun 2025 – 21 Jun 2025 (20 days)</div>
+    <div class="hero-title">Riverside Community — WhatsApp Intelligence Report</div>
+    <div class="hero-sub">Aggregated, de-duplicated digest across 3 WhatsApp group(s) — processed fully offline on a local model.</div>
+    <div class="hero-pills">
+      <span class="hero-pill highlight">💬 142 unique messages</span><span class="hero-pill">👥 18 participants</span><span class="hero-pill">📅 6 events</span><span class="hero-pill">🙂 Net sentiment +45.8</span>
+    </div>
+  </div>
+
+  <!-- EXECUTIVE SUMMARY -->
+  
+  <div class="section alt letter">
+    <div class="section-label">Executive Summary</div>
+    <p>Community activity was healthy and collaborative across the three groups this period, with 142 unique messages from 18 members. Conversation centred on the upcoming Wellness Workshop and the Community Day clean-up, both of which drew strong volunteer sign-ups. Sentiment was largely positive; the only friction was a brief, respectful disagreement over the new event-fee policy, which resolved constructively. Five topics were forwarded across multiple groups and de-duplicated for this report.</p>
+  </div>
+  
+
+  <!-- KEY METRICS (quantitative stats first) -->
+  <div class="section">
+    <div class="section-label">Key Metrics &amp; Statistics</div>
+    <div class="kpis">
+      
+      <div class="kpi"><div class="v">142</div><div class="l">Unique messages</div></div>
+      
+      <div class="kpi"><div class="v">18</div><div class="l">Participants</div></div>
+      
+      <div class="kpi"><div class="v">3</div><div class="l">Groups</div></div>
+      
+      <div class="kpi"><div class="v">6</div><div class="l">Events found</div></div>
+      
+      <div class="kpi"><div class="v">19</div><div class="l">Images read</div></div>
+      
+      <div class="kpi"><div class="v">26</div><div class="l">Duplicates removed</div></div>
+      
+    </div>
+    <div class="dedup-note">
+      <b>Duplicates:</b> 26 duplicate copies were posted across multiple
+      groups (5 distinct topics repeated cross-group). The figures above
+      reflect the <b>142 unique</b> messages after de-duplication
+      (168 considered). Avg 6.8 messages/day ·
+      23 questions · 11 links shared.
+    </div>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-label">Daily Activity Trend</div>
+    <div class="trend">
+      
+      <div class="bcol">
+        <div class="n">4</div>
+        <div class="bar we" style="height:25%"></div>
+        <div class="d">01/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">9</div>
+        <div class="bar " style="height:56%"></div>
+        <div class="d">02/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">6</div>
+        <div class="bar " style="height:38%"></div>
+        <div class="d">03/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">2</div>
+        <div class="bar " style="height:12%"></div>
+        <div class="d">04/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">1</div>
+        <div class="bar " style="height:6%"></div>
+        <div class="d">05/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">12</div>
+        <div class="bar " style="height:75%"></div>
+        <div class="d">06/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">15</div>
+        <div class="bar we" style="height:94%"></div>
+        <div class="d">07/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">7</div>
+        <div class="bar we" style="height:44%"></div>
+        <div class="d">08/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">5</div>
+        <div class="bar " style="height:31%"></div>
+        <div class="d">09/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">8</div>
+        <div class="bar " style="height:50%"></div>
+        <div class="d">10/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">3</div>
+        <div class="bar " style="height:19%"></div>
+        <div class="d">11/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">2</div>
+        <div class="bar " style="height:12%"></div>
+        <div class="d">12/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">10</div>
+        <div class="bar " style="height:62%"></div>
+        <div class="d">13/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">14</div>
+        <div class="bar we" style="height:88%"></div>
+        <div class="d">14/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">6</div>
+        <div class="bar we" style="height:38%"></div>
+        <div class="d">15/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">4</div>
+        <div class="bar " style="height:25%"></div>
+        <div class="d">16/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">9</div>
+        <div class="bar " style="height:56%"></div>
+        <div class="d">17/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">7</div>
+        <div class="bar " style="height:44%"></div>
+        <div class="d">18/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">3</div>
+        <div class="bar " style="height:19%"></div>
+        <div class="d">19/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">11</div>
+        <div class="bar " style="height:69%"></div>
+        <div class="d">20/06</div>
+      </div>
+      
+      <div class="bcol">
+        <div class="n">16</div>
+        <div class="bar we" style="height:100%"></div>
+        <div class="d">21/06</div>
+      </div>
+      
+    </div>
+    <div class="sec-note" style="margin-top:8px">Peak: 16 messages on 21 Jun 2025. Weekend bars in green.</div>
+  </div>
+  
+
+  
+  <div class="section alt">
+    <div class="section-label">Sentiment &amp; Discussion Health</div>
+    <div class="stack">
+      <div class="p" style="width:55%"></div>
+      <div class="n" style="width:36%"></div>
+      <div class="g" style="width:9%"></div>
+    </div>
+    <div class="legend">
+      <span><i style="background:#10b981"></i>Positive 55%</span>
+      <span><i style="background:#c4b8f5"></i>Neutral 36%</span>
+      <span><i style="background:#ef4444"></i>Negative 9%</span>
+    </div>
+    <div class="gauge">
+      <div class="g1"><div class="lab">Avg Positivity</div><div class="val">74<span style="font-size:11px">/100</span></div></div>
+      <div class="g1"><div class="lab">Avg Argument.</div><div class="val">21<span style="font-size:11px">/100</span></div></div>
+      <div class="g1"><div class="lab">Net Sentiment</div><div class="val">45.8</div></div>
+    </div>
+  </div>
+  
+
+  
+  <div class="section">
+    <div class="section-label">Content Mix &amp; Group Volume</div>
+    <div class="row">
+      
+      <div class="col"><div class="card"><h3>Content Categories</h3>
+        
+        <div class="hb"><div class="t"><span>Events</span><span>41 (29%)</span></div>
+          <div class="track"><div class="fill c0" style="width:29%"></div></div></div>
+        
+        <div class="hb"><div class="t"><span>Volunteering</span><span>33 (23%)</span></div>
+          <div class="track"><div class="fill c1" style="width:23%"></div></div></div>
+        
+        <div class="hb"><div class="t"><span>Discussions</span><span>28 (20%)</span></div>
+          <div class="track"><div class="fill c2" style="width:20%"></div></div></div>
+        
+        <div class="hb"><div class="t"><span>Knowledge</span><span>22 (15%)</span></div>
+          <div class="track"><div class="fill c3" style="width:15%"></div></div></div>
+        
+        <div class="hb"><div class="t"><span>Announcements</span><span>12 (8%)</span></div>
+          <div class="track"><div class="fill c4" style="width:8%"></div></div></div>
+        
+        <div class="hb"><div class="t"><span>Other</span><span>6 (4%)</span></div>
+          <div class="track"><div class="fill c5" style="width:4%"></div></div></div>
+        
+      </div></div>
+      
+      
+      <div class="col"><div class="card"><h3>Volume by Group</h3>
+        
+        <div class="hb"><div class="t"><span>Riverside Community Volunteers</span><span>64 (45%)</span></div>
+          <div class="track"><div class="fill" style="width:45%"></div></div></div>
+        
+        <div class="hb"><div class="t"><span>Downtown Wellness Group</span><span>47 (33%)</span></div>
+          <div class="track"><div class="fill" style="width:33%"></div></div></div>
+        
+        <div class="hb"><div class="t"><span>City Run Club Organizers</span><span>31 (22%)</span></div>
+          <div class="track"><div class="fill" style="width:22%"></div></div></div>
+        
+      </div></div>
+      
+    </div>
+  </div>
+  
+
+  
+  <div class="section alt">
+    <div class="section-label">Participation &amp; Engagement</div>
+    <div class="row">
+      <div class="col">
+        <table>
+          <thead><tr><th>#</th><th>Top Contributors</th><th style="text-align:right">Msgs</th><th style="text-align:right">Share</th></tr></thead>
+          <tbody>
+          
+          
+            <tr><td>1</td><td>Asha R.</td><td style="text-align:right">21</td>
+                <td style="text-align:right">14%</td></tr>
+          
+            <tr><td>2</td><td>Ben T.</td><td style="text-align:right">18</td>
+                <td style="text-align:right">12%</td></tr>
+          
+            <tr><td>3</td><td>Carlos M.</td><td style="text-align:right">16</td>
+                <td style="text-align:right">11%</td></tr>
+          
+            <tr><td>4</td><td>Dana K.</td><td style="text-align:right">14</td>
+                <td style="text-align:right">9%</td></tr>
+          
+            <tr><td>5</td><td>Evan L.</td><td style="text-align:right">12</td>
+                <td style="text-align:right">8%</td></tr>
+          
+            <tr><td>6</td><td>Farah S.</td><td style="text-align:right">11</td>
+                <td style="text-align:right">7%</td></tr>
+          
+            <tr><td>7</td><td>Gita P.</td><td style="text-align:right">9</td>
+                <td style="text-align:right">6%</td></tr>
+          
+            <tr><td>8</td><td>Hassan Q.</td><td style="text-align:right">8</td>
+                <td style="text-align:right">5%</td></tr>
+          
+            <tr><td>9</td><td>Ivy W.</td><td style="text-align:right">7</td>
+                <td style="text-align:right">4%</td></tr>
+          
+            <tr><td>10</td><td>Jordan N.</td><td style="text-align:right">6</td>
+                <td style="text-align:right">4%</td></tr>
+          
+          </tbody>
+        </table>
+      </div>
+      <div class="col"><div class="card"><h3>Engagement Snapshot</h3>
+        <table class="eng">
+          <tr><td>Active participants</td><td>18</td></tr>
+          <tr><td>Avg messages / participant</td><td>7</td></tr>
+          <tr><td>Avg messages / day</td><td>6.8</td></tr>
+          <tr><td>Questions raised</td><td>23</td></tr>
+          <tr><td>Images / posters</td><td>19</td></tr>
+          <tr><td>Links shared</td><td>11</td></tr>
+        </table>
+      </div></div>
+    </div>
+  </div>
+  
+
+  
+  <div class="section">
+    <div class="section-label">Group Digests &amp; Conversation Health</div>
+    
+    <div class="story">
+      <div class="story-header">
+        <div class="story-icon si0">R</div>
+        <div style="flex:1">
+          <div class="story-title">Riverside Community Volunteers
+            <span class="pill p-Healthy">Healthy</span></div>
+          <div class="story-meta">64 messages · Positivity 79/100 · Argument. 14/100 · high collaboration</div>
+        </div>
+      </div>
+      <div class="story-text">The busiest group, focused on organising the Community Day clean-up and the Wellness Workshop. Coordination was smooth and members were quick to volunteer for setup and registration roles.</div>
+      <ul><li>5 volunteers confirmed for the June 14 setup</li><li>First-aid refresher praised by attendees</li><li>Discussion on recruiting weekend volunteers</li></ul>
+      <div class="rep">↻ Repeated topics: Community Day logistics</div>
+    </div>
+    
+    <div class="story">
+      <div class="story-header">
+        <div class="story-icon si1">D</div>
+        <div style="flex:1">
+          <div class="story-title">Downtown Wellness Group
+            <span class="pill p-Mixed">Mixed</span></div>
+          <div class="story-meta">47 messages · Positivity 71/100 · Argument. 28/100 · one resolved disagreement</div>
+        </div>
+      </div>
+      <div class="story-text">Supportive, knowledge-sharing tone with daily wellness tips and a shared recording of the nutrition talk. A short debate on introducing a small class fee stayed civil and ended in agreement to trial it.</div>
+      <ul><li>Nutrition talk recording shared</li><li>Civil debate on class-fee policy</li><li>Morning-stretch tip thread</li></ul>
+      
+    </div>
+    
+    <div class="story">
+      <div class="story-header">
+        <div class="story-icon si2">C</div>
+        <div style="flex:1">
+          <div class="story-title">City Run Club Organizers
+            <span class="pill p-Differing">Differing Opinions</span></div>
+          <div class="story-meta">31 messages · Positivity 68/100 · Argument. 33/100</div>
+        </div>
+      </div>
+      <div class="story-text">Planning the Beginners Training Session and finalising the new running route. A recurring route debate resurfaced but was settled after referencing the updated plan.</div>
+      <ul><li>Beginners Training Session scheduled</li><li>Route plan finalised</li><li>Pacer mentors requested</li></ul>
+      <div class="rep">↻ Repeated topics: new route plan</div>
+    </div>
+    
+  </div>
+  
+
+  
+  <div class="section alt">
+    <div class="section-label">Events Calendar (6)</div>
+    <div class="sec-note">Upcoming events first; past events shown last.</div>
+    
+    <div class="cal-event">
+      <div class="cal-date-badge ">
+        <div class="cal-date-num">28</div>
+        <div class="cal-date-mon">Jun</div>
+      </div>
+      <div style="flex:1">
+        <div class="cal-event-title">Wellness Workshop (Beginners)
+          <span class="cal-tag tag-up">Upcoming</span></div>
+        <div class="cal-event-loc">6:00 PM · Riverside Community Hall</div>
+        <div class="cal-event-grp">Riverside Community Volunteers</div>
+      </div>
+    </div>
+    
+    <div class="cal-event">
+      <div class="cal-date-badge green">
+        <div class="cal-date-num">30</div>
+        <div class="cal-date-mon">Jun</div>
+      </div>
+      <div style="flex:1">
+        <div class="cal-event-title">Beginners Training Session
+          <span class="cal-tag tag-up">Upcoming</span></div>
+        <div class="cal-event-loc">7:30 AM · Civic Auditorium</div>
+        <div class="cal-event-grp">City Run Club Organizers</div>
+      </div>
+    </div>
+    
+    <div class="cal-event">
+      <div class="cal-date-badge teal">
+        <div class="cal-date-num">5</div>
+        <div class="cal-date-mon">Jul</div>
+      </div>
+      <div style="flex:1">
+        <div class="cal-event-title">Community Day Clean-Up
+          <span class="cal-tag tag-up">Upcoming</span></div>
+        <div class="cal-event-loc">9:00 AM · Central Park</div>
+        <div class="cal-event-grp">Riverside Community Volunteers</div>
+      </div>
+    </div>
+    
+    <div class="cal-event">
+      <div class="cal-date-badge amber">
+        <div class="cal-date-num">TBD</div>
+        
+      </div>
+      <div style="flex:1">
+        <div class="cal-event-title">Monthly Members Meetup
+          <span class="cal-tag tag-und">Undated</span></div>
+        <div class="cal-event-loc">TBD</div>
+        <div class="cal-event-grp">Downtown Wellness Group</div>
+      </div>
+    </div>
+    
+    <div class="cal-event">
+      <div class="cal-date-badge gray">
+        <div class="cal-date-num">12</div>
+        <div class="cal-date-mon">Jun</div>
+      </div>
+      <div style="flex:1">
+        <div class="cal-event-title">Nutrition Talk
+          <span class="cal-tag tag-past">Past</span></div>
+        <div class="cal-event-loc">5:00 PM · Online</div>
+        <div class="cal-event-grp">Downtown Wellness Group</div>
+      </div>
+    </div>
+    
+    <div class="cal-event">
+      <div class="cal-date-badge gray">
+        <div class="cal-date-num">7</div>
+        <div class="cal-date-mon">Jun</div>
+      </div>
+      <div style="flex:1">
+        <div class="cal-event-title">Spring Community Walk
+          <span class="cal-tag tag-past">Past</span></div>
+        <div class="cal-event-loc">8:00 AM · Riverside Trail</div>
+        <div class="cal-event-grp">Riverside Community Volunteers</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-title">Riverside Community — WhatsApp Intelligence Report</div>
+    <div class="footer-text">
+      Reporting period 01 Jun 2025 – 21 Jun 2025 (20 days) ·
+      3 group(s) · 142 unique messages · generated 06 Jun 2026, 14:50.<br>
+      Processed entirely on-device — text &amp; event posters read with Tesseract OCR and a local vision model;
+      categorisation, sentiment and conversation-health scoring used a local <b>qwen2.5:3b-instruct</b> model;
+      cross-group de-duplication via nomic-embed-text semantic similarity. No data left this machine; no cloud AI was used.<br>
+      Sentiment net score = (positive − negative) ÷ total × 100, over the unique message set.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

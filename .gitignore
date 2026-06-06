@@ -1,0 +1,38 @@
+# ===========================================================================
+#  NEVER COMMIT real WhatsApp data, login session, or generated reports.
+#  They can contain other people's private messages, names, and photos.
+#  (Patterns must be on their own line — .gitignore has no inline comments.)
+# ===========================================================================
+
+# WhatsApp Web login session (linked device) — SENSITIVE
+profile/
+
+# Scraped messages, media, processed analysis
+data/
+
+# Generated reports (real content)
+output/
+
+# The user's own real reference newsletters (not for the repo)
+Other sample reports/
+assets/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# User personal reference notes (not part of the tool)
+src/Query for whatsapp.txt

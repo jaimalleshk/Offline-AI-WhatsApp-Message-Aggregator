@@ -1,0 +1,19 @@
+# Fully-offline WhatsApp news aggregation pipeline.
+# LLM/OCR/embeddings run locally via Ollama + Tesseract; no cloud AI APIs.
+playwright>=1.58
+pytesseract>=0.3.13
+pillow>=11
+pillow-heif>=1.0
+opencv-python>=4.11
+numpy>=2.0
+PyYAML>=6.0
+requests>=2.32
+python-dateutil>=2.9
+Jinja2>=3.1
+# External, install separately:
+#   - Ollama  (https://ollama.com)  with models:
+#       ollama pull qwen2.5:7b-instruct
+#       ollama pull qwen2.5vl:7b
+#       ollama pull nomic-embed-text
+#   - Tesseract OCR (https://github.com/UB-Mannheim/tesseract) -> path set in config.yaml
+#   - Playwright Chromium:  python -m playwright install chromium

@@ -1,0 +1,71 @@
+# ── WhatsApp News Aggregation — configuration ───────────────────────────────
+# Everything runs fully offline against a local Ollama instance.
+
+date_range:
+  # If `end` is null -> today. `weeks_back` defines the window start.
+  end: null            # e.g. "2026-06-06" or null for today
+  weeks_back: 3        # report covers [end - weeks_back, end]
+
+# Groups/chats are NOT configured here — you specify them each time in your
+# plain-text request to the agent (e.g. "the volunteer and events groups", or
+# exact names like "my chat with Priya"). Left empty by design.
+keywords: ["AOL-Houston Volunteers", "Art of living", "AOL", "Gurudev", "TTC", "Boone", "Teacher", "Teachers", "Philips"]
+
+categories:
+  - Events
+  - Knowledge
+  - Volunteering
+  - Discussions
+  - Announcements
+  - Other
+
+models:
+  # NOTE: this machine has a 6 GB GPU (GTX 1660 Ti). qwen2.5:7b only partially
+  # fits (~21% CPU offload) and runs at ~7 min/call — impractical for batch work.
+  # qwen2.5:3b fits 100% in GPU (~3 s/call warm), so it is the default here.
+  # To use 7b, free GPU memory (close other GPU apps) and set it below.
+  analysis: "qwen2.5:3b-instruct"     # summaries, categorisation, sentiment, health
+  vision:   "qwen2.5vl:3b"            # poster / image text extraction (fallback; ~3 GB)
+  embed:    "nomic-embed-text:latest" # cross-group de-duplication
+  ollama_host: "http://localhost:11434"
+
+ocr:
+  tesseract_cmd: "C:/Program Files/Tesseract-OCR/tesseract.exe"
+  min_chars_for_confidence: 25   # below this, escalate image to the vision model
+
+dedup:
+  similarity_threshold: 0.90     # cosine sim above which two messages are "the same"
+  min_chars: 12                  # ignore very short messages for dedup
+
+scrape:
+  headless: false                # must be visible the first time to scan the QR code
+  profile_dir: "profile"         # persistent login (scan QR once)
+  max_scroll_rounds: 120         # safety cap when scrolling chat history
+  scroll_pause_ms: 600
+  per_group_message_cap: 4000
+
+  # ── Gentle mode: behave more like a human to reduce WhatsApp ban risk ──
+  # The scraper is ALWAYS read-only (never sends/joins/posts). Gentle mode adds
+  # randomized delays + pauses so activity looks less machine-like.
+  gentle_mode: true
+  gentle:
+    min_action_delay_ms: 900     # randomized wait between scroll steps (low)
+    max_action_delay_ms: 2300    # ...and high end (jitter between the two)
+    min_group_pause_s: 5         # pause between finishing one group and the next
+    max_group_pause_s: 18
+    groups_per_run: 0            # 0 = scrape all matched groups in one run.
+                                 # >0 = scrape only this many NEW groups per run
+                                 # (resume mode: spread many groups over sessions)
+
+paths:
+  raw: "data/raw"
+  media: "data/media"
+  processed: "data/processed"
+  output: "output"
+
+report:
+  title: "WhatsApp Community Intelligence Report"
+  subtitle: "Multi-Group Aggregated Digest"
+  organisation: "Community Analytics"
+
+

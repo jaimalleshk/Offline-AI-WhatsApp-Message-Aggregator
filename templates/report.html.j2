@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ title }}</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+    background:#f0eef9; color:#1a1a2e; line-height:1.6;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .wrapper{ max-width:720px; margin:28px auto; background:#fff; border-radius:16px;
+            overflow:hidden; border:1px solid #ddd9f5; }
+  @media print{ .wrapper{ margin:0 auto; border-radius:0; border:none; } }
+
+  /* HEADER */
+  .header{ background:#fff; border-bottom:1px solid #e8e4f8; padding:18px 30px;
+           display:flex; align-items:center; gap:14px; }
+  .header-circle{ width:46px; height:46px; border-radius:50%;
+    background:linear-gradient(135deg,#5b4fcf,#7b6fe0); display:flex; align-items:center;
+    justify-content:center; color:#fff; font-size:13px; font-weight:700; flex-shrink:0; letter-spacing:.5px; }
+  .header-title{ font-size:18px; font-weight:700; color:#1a1a2e; }
+  .header-sub{ font-size:12px; color:#7b72c8; margin-top:2px; }
+
+  /* HERO */
+  .hero{ background:linear-gradient(135deg,#5b4fcf 0%,#7b6fe0 100%); padding:30px 30px 28px; text-align:center; }
+  .hero-eyebrow{ font-size:11px; letter-spacing:1.6px; text-transform:uppercase;
+                 color:rgba(255,255,255,.7); margin-bottom:9px; }
+  .hero-title{ font-size:27px; font-weight:800; color:#fff; line-height:1.25; margin-bottom:10px; letter-spacing:-.3px; }
+  .hero-sub{ font-size:14px; color:rgba(255,255,255,.85); max-width:500px; margin:0 auto 18px; }
+  .hero-pills{ display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
+  .hero-pill{ font-size:12px; font-weight:600; background:rgba(255,255,255,.18); color:#fff;
+              padding:5px 14px; border-radius:20px; border:1px solid rgba(255,255,255,.3); }
+  .hero-pill.highlight{ background:#10b981; border-color:#10b981; }
+
+  /* SECTIONS */
+  .section{ padding:24px 30px; border-bottom:1px solid #f0eef9; }
+  .section.alt{ background:#faf9ff; }
+  .section-label{ font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase;
+                  color:#9f96de; margin-bottom:16px; }
+
+  /* LETTER / EXEC SUMMARY */
+  .letter p{ font-size:14.5px; color:#2d2b4e; line-height:1.75; }
+
+  /* KPI GRID */
+  .kpis{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .kpi{ background:#faf9ff; border:1px solid #ece8fb; border-radius:12px; padding:14px 16px; }
+  .kpi .v{ font-size:28px; font-weight:800; color:#5b4fcf; line-height:1; }
+  .kpi .l{ font-size:11px; color:#9f96de; text-transform:uppercase; letter-spacing:.4px; margin-top:6px; font-weight:600; }
+  .dedup-note{ font-size:12.5px; color:#4a4570; margin-top:14px; background:#ede9fe;
+               border-radius:10px; padding:11px 14px; }
+  .dedup-note b{ color:#5b4fcf; }
+
+  /* COLUMNS */
+  .row{ display:flex; gap:16px; align-items:flex-start; }
+  .col{ flex:1; min-width:0; }
+  .card{ border:1px solid #ece8fb; border-radius:12px; padding:14px 16px; }
+  .card h3{ font-size:12px; font-weight:700; color:#1a1a2e; text-transform:uppercase;
+            letter-spacing:.5px; margin-bottom:11px; }
+
+  /* TREND */
+  .trend{ display:flex; align-items:flex-end; gap:3px; height:120px; }
+  .trend .bcol{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+  .trend .bar{ width:74%; background:linear-gradient(180deg,#7b6fe0,#5b4fcf); border-radius:3px 3px 0 0; min-height:2px; }
+  .trend .bar.we{ background:linear-gradient(180deg,#34d399,#059669); }
+  .trend .d{ font-size:8px; color:#9f96de; margin-top:3px; white-space:nowrap; }
+  .trend .n{ font-size:8px; color:#7b72c8; font-weight:700; }
+
+  /* HORIZONTAL BARS */
+  .hb{ margin:7px 0; }
+  .hb .t{ display:flex; justify-content:space-between; font-size:12px; margin-bottom:3px; color:#2d2b4e; }
+  .hb .track{ background:#efecfb; border-radius:5px; height:13px; overflow:hidden; }
+  .hb .fill{ height:100%; background:#5b4fcf; border-radius:5px; }
+  .hb .fill.c0{background:#5b4fcf}.hb .fill.c1{background:#7b6fe0}.hb .fill.c2{background:#9f8ee8}
+  .hb .fill.c3{background:#10b981}.hb .fill.c4{background:#d97706}.hb .fill.c5{background:#c4b8f5}
+
+  /* SENTIMENT */
+  .stack{ display:flex; height:22px; border-radius:6px; overflow:hidden; margin:6px 0 9px; }
+  .stack .p{ background:#10b981; } .stack .n{ background:#c4b8f5; } .stack .g{ background:#ef4444; }
+  .legend{ display:flex; gap:16px; font-size:11px; color:#4a4570; flex-wrap:wrap; }
+  .legend i{ display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:middle; }
+  .gauge{ display:flex; gap:12px; margin-top:12px; }
+  .gauge .g1{ flex:1; background:#faf9ff; border-radius:10px; padding:9px 11px; text-align:center; }
+  .gauge .lab{ font-size:10px; color:#9f96de; text-transform:uppercase; letter-spacing:.3px; font-weight:600; }
+  .gauge .val{ font-size:22px; font-weight:800; color:#5b4fcf; margin-top:3px; }
+
+  /* TABLES */
+  table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  th{ text-align:left; color:#9f96de; font-size:10px; text-transform:uppercase; letter-spacing:.5px;
+      border-bottom:2px solid #ece8fb; padding:7px 8px; font-weight:700; }
+  td{ padding:7px 8px; border-bottom:1px solid #f3f0fc; vertical-align:top; color:#2d2b4e; }
+  tr:nth-child(even) td{ background:#faf9ff; }
+  .eng td:last-child{ text-align:right; font-weight:700; color:#5b4fcf; }
+
+  /* STORY CARDS (group digests) */
+  .story{ margin-bottom:18px; break-inside:avoid; }
+  .story:last-child{ margin-bottom:0; }
+  .story-header{ display:flex; gap:13px; align-items:flex-start; margin-bottom:8px; }
+  .story-icon{ width:40px; height:40px; border-radius:10px; flex-shrink:0; display:flex;
+               align-items:center; justify-content:center; font-size:17px; font-weight:800; color:#3730a3; }
+  .si0{ background:#ede9fe; } .si1{ background:#dbeafe; color:#1e40af; } .si2{ background:#dcfce7; color:#166534; }
+  .si3{ background:#fef3c7; color:#92400e; } .si4{ background:#fee2e2; color:#991b1b; } .si5{ background:#ccfbf1; color:#115e59; }
+  .story-title{ font-size:15px; font-weight:700; color:#1a1a2e; }
+  .story-meta{ font-size:11px; color:#9f96de; margin-top:2px; }
+  .story-text{ font-size:13.5px; color:#4a4570; line-height:1.65; }
+  .story ul{ margin:6px 0 4px 18px; } .story li{ font-size:12.5px; color:#4a4570; margin:2px 0; }
+  .story .rep{ font-size:11.5px; color:#7c3aed; margin-top:5px; }
+  .pill{ display:inline-block; padding:3px 11px; border-radius:20px; font-size:10.5px; font-weight:700;
+         text-transform:uppercase; letter-spacing:.3px; }
+  .p-Healthy,.p-Positive,.p-Mostly{ background:#dcfce7; color:#166534; }
+  .p-Mixed,.p-Differing{ background:#fef3c7; color:#92400e; }
+  .p-Argumentative,.p-Unhealthy{ background:#fee2e2; color:#991b1b; }
+
+  /* EVENTS CALENDAR */
+  .cal-event{ display:flex; gap:12px; align-items:flex-start; margin-bottom:13px; break-inside:avoid; }
+  .cal-date-badge{ min-width:46px; height:46px; background:#5b4fcf; border-radius:9px; display:flex;
+    flex-direction:column; align-items:center; justify-content:center; flex-shrink:0; }
+  .cal-date-badge.green{background:#059669}.cal-date-badge.amber{background:#d97706}
+  .cal-date-badge.coral{background:#dc2626}.cal-date-badge.teal{background:#0d9488}
+  .cal-date-badge.orange{background:#ea580c}.cal-date-badge.gray{background:#9aa7b2}
+  .cal-date-num{ font-size:13px; font-weight:800; color:#fff; line-height:1; }
+  .cal-date-mon{ font-size:8px; font-weight:700; color:rgba(255,255,255,.85); text-transform:uppercase; margin-top:2px; }
+  .cal-event-title{ font-size:13.5px; font-weight:700; color:#1a1a2e; }
+  .cal-event-loc{ font-size:11.5px; color:#9f96de; margin-top:2px; }
+  .cal-event-grp{ font-size:11px; color:#7b72c8; margin-top:1px; }
+  .cal-tag{ display:inline-block; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.4px;
+            padding:1px 7px; border-radius:10px; margin-left:6px; vertical-align:middle; }
+  .tag-up{ background:#dcfce7; color:#166534; } .tag-past{ background:#eef1f4; color:#74828f; }
+  .tag-und{ background:#fef3c7; color:#92400e; }
+
+  /* FOOTER */
+  .footer{ background:#f5f3ff; padding:22px 30px; border-top:1px solid #e8e4f8; }
+  .footer-title{ font-size:14px; font-weight:700; color:#5b4fcf; text-align:center; margin-bottom:8px; }
+  .footer-text{ font-size:11px; color:#9f96de; line-height:1.7; text-align:center; }
+  .sec-note{ font-size:11px; color:#9f96de; margin:-8px 0 12px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-circle">{{ org_initials }}</div>
+    <div>
+      <div class="header-title">{{ title }}</div>
+      <div class="header-sub">{{ subtitle }} · {{ org }}</div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">Reporting period · {{ window_start }} – {{ window_end }} ({{ period_days }} days)</div>
+    <div class="hero-title">{{ title }}</div>
+    <div class="hero-sub">{% if focus %}{{ focus }}{% else %}Aggregated, de-duplicated digest across {{ stats.groups_count }} WhatsApp group(s) — processed fully offline on a local model.{% endif %}</div>
+    <div class="hero-pills">
+      {% for pill in hero_pills %}<span class="hero-pill{% if loop.first %} highlight{% endif %}">{{ pill }}</span>{% endfor %}
+    </div>
+  </div>
+
+  <!-- EXECUTIVE SUMMARY -->
+  {% if exec_summary %}
+  <div class="section alt letter">
+    <div class="section-label">Executive Summary</div>
+    <p>{{ exec_summary }}</p>
+  </div>
+  {% endif %}
+
+  <!-- KEY METRICS (quantitative stats first) -->
+  <div class="section">
+    <div class="section-label">Key Metrics &amp; Statistics</div>
+    <div class="kpis">
+      {% for k in kpis %}
+      <div class="kpi"><div class="v">{{ k.v }}</div><div class="l">{{ k.l }}</div></div>
+      {% endfor %}
+    </div>
+    <div class="dedup-note">
+      <b>Duplicates:</b> {{ dedup.duplicate_copies_removed }} duplicate copies were posted across multiple
+      groups ({{ dedup.cross_group_duplicate_topics }} distinct topics repeated cross-group). The figures above
+      reflect the <b>{{ stats.total_unique }} unique</b> messages after de-duplication
+      ({{ dedup.total_considered }} considered). Avg {{ stats.avg_per_day }} messages/day ·
+      {{ stats.questions_asked }} questions · {{ stats.links_shared }} links shared.
+    </div>
+  </div>
+
+  {% if 'trend' in include %}
+  <div class="section">
+    <div class="section-label">Daily Activity Trend</div>
+    <div class="trend">
+      {% for b in trend_bars %}
+      <div class="bcol">
+        <div class="n">{{ b.count if b.count else '' }}</div>
+        <div class="bar {{ 'we' if b.dow in ['Sat','Sun'] else '' }}" style="height:{{ b.pct }}%"></div>
+        <div class="d">{{ b.label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% if busiest %}<div class="sec-note" style="margin-top:8px">Peak: {{ busiest.count }} messages on {{ busiest.date }}. Weekend bars in green.</div>{% endif %}
+  </div>
+  {% endif %}
+
+  {% if 'sentiment' in include %}
+  <div class="section alt">
+    <div class="section-label">Sentiment &amp; Discussion Health</div>
+    <div class="stack">
+      <div class="p" style="width:{{ sentiment.pos_pct }}%"></div>
+      <div class="n" style="width:{{ sentiment.neu_pct }}%"></div>
+      <div class="g" style="width:{{ sentiment.neg_pct }}%"></div>
+    </div>
+    <div class="legend">
+      <span><i style="background:#10b981"></i>Positive {{ sentiment.pos_pct }}%</span>
+      <span><i style="background:#c4b8f5"></i>Neutral {{ sentiment.neu_pct }}%</span>
+      <span><i style="background:#ef4444"></i>Negative {{ sentiment.neg_pct }}%</span>
+    </div>
+    <div class="gauge">
+      <div class="g1"><div class="lab">Avg Positivity</div><div class="val">{{ overall_health.avg_positivity|int }}<span style="font-size:11px">/100</span></div></div>
+      <div class="g1"><div class="lab">Avg Argument.</div><div class="val">{{ overall_health.avg_argumentativeness|int }}<span style="font-size:11px">/100</span></div></div>
+      <div class="g1"><div class="lab">Net Sentiment</div><div class="val">{{ sentiment.net }}</div></div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if 'categories' in include or 'groupvol' in include %}
+  <div class="section">
+    <div class="section-label">Content Mix &amp; Group Volume</div>
+    <div class="row">
+      {% if 'categories' in include %}
+      <div class="col"><div class="card"><h3>Content Categories</h3>
+        {% for c in cats %}
+        <div class="hb"><div class="t"><span>{{ c.name }}</span><span>{{ c.count }} ({{ c.pct }}%)</span></div>
+          <div class="track"><div class="fill c{{ loop.index0 }}" style="width:{{ c.pct }}%"></div></div></div>
+        {% endfor %}
+      </div></div>
+      {% endif %}
+      {% if 'groupvol' in include %}
+      <div class="col"><div class="card"><h3>Volume by Group</h3>
+        {% for g in groups_bar %}
+        <div class="hb"><div class="t"><span>{{ g.name[:30] }}</span><span>{{ g.count }} ({{ g.pct }}%)</span></div>
+          <div class="track"><div class="fill" style="width:{{ g.pct }}%"></div></div></div>
+        {% endfor %}
+      </div></div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if 'participation' in include %}
+  <div class="section alt">
+    <div class="section-label">Participation &amp; Engagement</div>
+    <div class="row">
+      <div class="col">
+        <table>
+          <thead><tr><th>#</th><th>Top Contributors</th><th style="text-align:right">Msgs</th><th style="text-align:right">Share</th></tr></thead>
+          <tbody>
+          {% set tot = stats.total_unique or 1 %}
+          {% for name, n in stats.top_contributors %}
+            <tr><td>{{ loop.index }}</td><td>{{ name }}</td><td style="text-align:right">{{ n }}</td>
+                <td style="text-align:right">{{ (n*100//tot) }}%</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="col"><div class="card"><h3>Engagement Snapshot</h3>
+        <table class="eng">
+          <tr><td>Active participants</td><td>{{ stats.active_participants }}</td></tr>
+          <tr><td>Avg messages / participant</td><td>{{ (stats.total_unique // (stats.active_participants or 1)) }}</td></tr>
+          <tr><td>Avg messages / day</td><td>{{ stats.avg_per_day }}</td></tr>
+          <tr><td>Questions raised</td><td>{{ stats.questions_asked }}</td></tr>
+          <tr><td>Images / posters</td><td>{{ stats.images_shared }}</td></tr>
+          <tr><td>Links shared</td><td>{{ stats.links_shared }}</td></tr>
+        </table>
+      </div></div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if 'group_digests' in include %}
+  <div class="section">
+    <div class="section-label">Group Digests &amp; Conversation Health</div>
+    {% for g in gcards %}
+    <div class="story">
+      <div class="story-header">
+        <div class="story-icon si{{ loop.index0 % 6 }}">{{ g.name[0]|upper }}</div>
+        <div style="flex:1">
+          <div class="story-title">{{ g.name }}
+            <span class="pill p-{{ g.health.split(' ')[0] }}">{{ g.health }}</span></div>
+          <div class="story-meta">{{ g.count }} messages · Positivity {{ g.positivity }}/100 · Argument. {{ g.argumentativeness }}/100{% if g.notes %} · {{ g.notes }}{% endif %}</div>
+        </div>
+      </div>
+      <div class="story-text">{{ g.summary }}</div>
+      {% if g.highlights %}<ul>{% for h in g.highlights %}<li>{{ h }}</li>{% endfor %}</ul>{% endif %}
+      {% if g.repeated %}<div class="rep">↻ Repeated topics: {{ g.repeated|join(', ') }}</div>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if 'events' in include %}
+  <div class="section alt">
+    <div class="section-label">Events Calendar ({{ event_total }})</div>
+    <div class="sec-note">Upcoming events first; past events shown last.</div>
+    {% for e in events_cal %}
+    <div class="cal-event">
+      <div class="cal-date-badge {{ e.badge_cls }}">
+        <div class="cal-date-num">{{ e.badge.num }}</div>
+        {% if e.badge.mon %}<div class="cal-date-mon">{{ e.badge.mon }}</div>{% endif %}
+      </div>
+      <div style="flex:1">
+        <div class="cal-event-title">{{ e.title }}
+          <span class="cal-tag {{ 'tag-up' if e.status=='Upcoming' else ('tag-past' if e.status=='Past' else 'tag-und') }}">{{ e.status }}</span></div>
+        {% if e.time or e.venue %}<div class="cal-event-loc">{% if e.time %}{{ e.time }}{% endif %}{% if e.time and e.venue %} · {% endif %}{% if e.venue %}{{ e.venue }}{% endif %}</div>{% endif %}
+        <div class="cal-event-grp">{{ e.group }}</div>
+      </div>
+    </div>
+    {% endfor %}
+    {% if event_total == 0 %}<div class="story-text" style="color:#9f96de">No events detected in this period.</div>{% endif %}
+  </div>
+  {% endif %}
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-title">{{ title }}</div>
+    <div class="footer-text">
+      Reporting period {{ window_start }} – {{ window_end }} ({{ period_days }} days) ·
+      {{ stats.groups_count }} group(s) · {{ stats.total_unique }} unique messages · generated {{ generated }}.<br>
+      Processed entirely on-device — text &amp; event posters read with Tesseract OCR and a local vision model;
+      categorisation, sentiment and conversation-health scoring used a local <b>{{ cfg.models.analysis }}</b> model;
+      cross-group de-duplication via nomic-embed-text semantic similarity. No data left this machine; no cloud AI was used.<br>
+      Sentiment net score = (positive − negative) ÷ total × 100, over the unique message set.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
