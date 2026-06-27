@@ -91,7 +91,23 @@ turns it into a run-plan and drives everything.
 python src/agent.py
 ```
 
-It asks what report you want. Type something like:
+This opens a **menu-driven console** — every option is visible (nothing hidden in
+flags):
+
+```
+  1) Generate report   (Full: scrape → analyse → report)
+  2) Generate report   (Skip scraping — reuse downloaded data)
+  3) Generate report   (Report only — instant rebuild, no AI)
+  4) Settings          (AI model, gentle mode)
+  5) Open report folder
+  6) Help / About
+  0) Quit
+```
+
+After you pick a mode it offers your **last 3 requests** (or write a new one), shows a
+full **review screen** where you can change the time window, groups, sections, outputs,
+mode, focus and title, then runs with a **live progress display** (`[2/4] Analysing…`,
+`Classifying messages [####----] 14/28`). Type a request like:
 
 > *Report for the last 10 days across my volunteer and events groups. Focus on upcoming
 > events and any conflicts. I want the sentiment, group digests and events sections,

@@ -1,16 +1,19 @@
 """Standalone, self-contained WhatsApp report agent.
 
-Runs entirely on your machine and talks ONLY to the local Qwen model via Ollama —
-no Claude, no cloud, zero external AI usage. You describe what you want in plain
-English; the local model turns it into a run-plan and drives the pipeline.
+Runs entirely on your machine and talks ONLY to the local model via Ollama —
+no Claude, no cloud, zero external AI usage.
 
   python src/agent.py
-      → interactive: asks what report you want, confirms the plan, builds it.
+      → launches the interactive MENU (src/menu.py): every option is shown,
+        the last 3 requests are offered, and progress is displayed live.
 
   python src/agent.py --intent "last 10 days, my volunteer and events groups, focus on
         events and conflicts, give me a pdf and a csv of events" --yes
+  python src/agent.py --skip-scrape ...     # reuse already-scraped data in data/raw
+  python src/agent.py --report-only ...     # rebuild report from processed data (instant)
 
-  python src/agent.py --skip-scrape ...   # reuse already-scraped data in data/raw
+The --intent/--skip-scrape/--report-only flags are for scripting; the menu exposes
+all of them as plain options so nothing is hidden.
 """
 from __future__ import annotations
 
@@ -32,6 +35,7 @@ import ocr_images
 import analyze
 import report as report_mod
 import render_pdf
+import progress
 
 # Windows consoles default to cp1252; force UTF-8 so box/checkmark glyphs print.
 for _s in (sys.stdout, sys.stderr):
@@ -235,7 +239,7 @@ def execute(cfg: dict, plan: dict, skip_scrape: bool, force_scrape: bool = False
             print("\nNothing to render yet — there's no processed data "
                   "(data/processed/analysis.json). Run a full report first.")
             return
-        LOG.info("=== Report-only: rebuilding from existing analysis (no scrape/analyse) ===")
+        progress.stage(1, 1, "Rebuilding report from existing analysis (no scrape/analyse)")
         _render_outputs(cfg, plan, outdir)
         return
 
@@ -245,10 +249,14 @@ def execute(cfg: dict, plan: dict, skip_scrape: bool, force_scrape: bool = False
     data_unchanged = (sig == last_sig.get("sig")) and analysis_exists and not force_scrape
 
     if data_unchanged:
-        LOG.info("=== Data unchanged — reusing existing analysis (formatting-only update) ===")
+        progress.stage(1, 1, "Data unchanged — reusing existing analysis (formatting-only update)")
     else:
+        # total pipeline steps for the progress header
+        nsteps = (4 if not skip_scrape else 3) + 1  # +1 = Build report
+        step = 0
         if not skip_scrape:
-            LOG.info("=== Scraping WhatsApp Web ===")
+            step += 1
+            progress.stage(step, nsteps, "Scraping WhatsApp Web")
             index = scrape_whatsapp.run(cfg)
             if not index:
                 print("\n" + "!" * 64)
@@ -257,17 +265,18 @@ def execute(cfg: dict, plan: dict, skip_scrape: bool, force_scrape: bool = False
                 print(" WhatsApp Web page layout differs from what the scraper expects.")
                 print(" Diagnose by dumping the live page, then share it for a quick fix:")
                 print("     python src/scrape_whatsapp.py --inspect")
-                print(" Or reuse already-scraped data with:  --skip-scrape")
+                print(" Or reuse already-scraped data with the 'skip scrape' menu option.")
                 print("!" * 64)
                 return
-        else:
-            LOG.info("=== Skipping scrape (reusing data/raw) ===")
-        LOG.info("=== Reading images (OCR/vision) ===")
+        step += 1
+        progress.stage(step, nsteps, "Reading images (OCR + local vision)")
         ocr_images.run(cfg)
-        LOG.info("=== Analysing ===")
+        step += 1
+        progress.stage(step, nsteps, "Analysing (categorise · sentiment · health · events)")
         if analyze.run(cfg) is None:
             print("\nNo messages found in data/raw for this window. Nothing produced.")
             return
+        progress.stage(step + 1, nsteps, "Building report")
     write_json(p(cfg, "processed") / "last_run.json",
                {"sig": sig, "keywords": cfg.get("keywords", []),
                 "explicit_chats": plan.get("explicit_chats", []),
@@ -368,32 +377,18 @@ def main():
     args = ap.parse_args()
 
     base = load_config()
-    # report-only needs no model; everything else does
-    if not args.report_only and not wait_for_ollama(base):
-        print("Ollama is not running. Start it (`ollama serve`) and retry.")
-        sys.exit(1)
 
-    print("\n WhatsApp Report Agent — runs fully offline on local Qwen.")
-    print(" Tell me what report you want (groups/chats, how many past days, what to")
-    print(" analyse, and the output format).")
-    print(" Tip: say 'regenerate report' (or run with --report-only) to rebuild the")
-    print(" report instantly from already-processed data. Type 'quit' to exit.\n")
-
+    # Scripted (non-interactive) path: a one-shot run from CLI flags.
     if args.intent:
+        if not args.report_only and not wait_for_ollama(base):
+            print("Ollama is not running. Start it (`ollama serve`) and retry.")
+            sys.exit(1)
         one_run(base, args.intent, args.yes, args.skip_scrape, report_only=args.report_only)
         return
 
-    while True:
-        try:
-            text = input("What report would you like?\n> ").strip()
-        except (EOFError, KeyboardInterrupt):
-            print("\nBye.")
-            return
-        if text.lower() in ("quit", "exit", "q", ""):
-            print("Bye.")
-            return
-        one_run(base, text, args.yes, args.skip_scrape, report_only=args.report_only)
-        print()
+    # Interactive path: the full menu-driven console (all options discoverable).
+    import menu
+    menu.run(base)
 
 
 if __name__ == "__main__":

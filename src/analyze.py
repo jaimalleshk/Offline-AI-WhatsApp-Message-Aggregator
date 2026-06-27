@@ -17,6 +17,7 @@ from dateutil import parser as dtparse
 
 from common import (LOG, Ollama, date_window, load_config, p, read_json,
                     write_json)
+import progress
 
 CATS = ["Events", "Knowledge", "Volunteering", "Discussions", "Announcements", "Other"]
 
@@ -171,7 +172,7 @@ def classify(cfg: dict, msgs: list[dict], idxs: list[int]) -> None:
             msgs[i]["is_event"] = bool(x.get("is_event")) or msgs[i].get("image_is_event", False)
             msgs[i]["event"] = ev if isinstance(ev, dict) else None
             msgs[i]["_classified"] = True
-        LOG.info("  classified %d/%d", min(s + batch, len(todo)), len(todo))
+        progress.bar(min(s + batch, len(todo)), len(todo), prefix="Classifying messages")
 
 
 # ── per-group summary + discussion health ───────────────────────────────────

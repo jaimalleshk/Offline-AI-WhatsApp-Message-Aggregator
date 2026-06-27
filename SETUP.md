@@ -92,7 +92,24 @@ cd src
 python agent.py
 ```
 
-You'll be asked what report you want. Describe it in plain English, e.g.:
+This opens a **menu-driven console** — every option is visible, nothing hidden:
+
+```
+  1) Generate report   (Full: scrape → analyse → report)
+  2) Generate report   (Skip scraping — reuse downloaded data)
+  3) Generate report   (Report only — instant rebuild, no AI)
+  4) Settings          (AI model, gentle mode)
+  5) Open report folder
+  6) Help / About
+  0) Quit
+```
+
+**Generate a report:** pick a mode → choose one of your **last 3 requests** (or write a
+new one) → a **review screen** lets you change the time window, groups/chats, sections,
+outputs, mode, focus and title → **RUN**. A **live progress display** shows each stage
+(`[2/4] Analysing…`) and a bar (`Classifying messages [####----] 14/28`).
+
+Describe a request in plain English, e.g.:
 
 > *Last 3 weeks, the volunteer and events groups. Categorise, read event posters,
 > assess discussion health, ignore cross-group duplicates. PDF and HTML.*
@@ -101,12 +118,19 @@ You'll be asked what report you want. Describe it in plain English, e.g.:
 (*WhatsApp → Settings → Linked Devices → Link a device*). The login is saved in
 `profile/`, so later runs are unattended.
 
-### Three speeds of re-run
-| Need | Command | Re-scrape? | Re-analyse? |
-|---|---|---|---|
-| Fresh data | `python agent.py` | yes | yes |
-| Same chats, re-process | `python agent.py --skip-scrape` | no | yes |
-| Just change the report look | `python agent.py --report-only` *(or say “regenerate report”)* | no | no |
+### The three run modes (menu options 1–3)
+| Mode | What it does | Re-scrape? | Re-analyse? | Speed |
+|---|---|---|---|---|
+| **Full** | scrape WhatsApp → analyse → report | yes | yes | slow |
+| **Skip scraping** | re-analyse data already downloaded | no | yes | minutes |
+| **Report only** | rebuild report from processed data | no | no | instant |
+
+> **Settings (option 4)** lets you switch the **analysis model** (pick any installed
+> Ollama model, e.g. `qwen2.5:3b-instruct` or `gemma4:12b-it-qat`) and toggle
+> **gentle mode** — both saved to `config.yaml`.
+
+For scripting/automation, the same actions are available as flags
+(`--intent "…" --yes`, `--skip-scrape`, `--report-only`).
 
 Outputs land in **`output/`**: `report.html`, `report.pdf`, and optionally
 `events.csv`, `summary.csv`, `report_data.json`.

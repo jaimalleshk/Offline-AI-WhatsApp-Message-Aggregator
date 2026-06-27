@@ -502,7 +502,7 @@ def run(cfg: dict, inspect: bool = False) -> list[dict]:
                          "Delete data/raw to start a fresh cycle, or use --skip-scrape to report.")
 
         for gi, g in enumerate(todo):
-            LOG.info("Scraping: %s", g)
+            LOG.info("Scraping group %d/%d: %s", gi + 1, len(todo), g)
             if not open_group(page, g):
                 LOG.warning("  could not open %s — skipping", g)
                 continue
