@@ -9,7 +9,7 @@ date_range:
 # Groups/chats are NOT configured here — you specify them each time in your
 # plain-text request to the agent (e.g. "the volunteer and events groups", or
 # exact names like "my chat with Priya"). Left empty by design.
-keywords: ["AOL-Houston Volunteers", "Art of living", "AOL", "Gurudev", "TTC", "Boone", "Teacher", "Teachers", "Philips"]
+keywords: []   # you enter groups/people each run in the console; no defaults here
 
 categories:
   - Events
@@ -36,6 +36,61 @@ ocr:
 dedup:
   similarity_threshold: 0.90     # cosine sim above which two messages are "the same"
   min_chars: 12                  # ignore very short messages for dedup
+
+# ── EXTRACTION CRITERIA (shown in the console; override here, not hard-coded) ──
+extraction:
+  # Goal, in order: compact, de-duplicate, capture every unique discussion +
+  # who took part, capture every event with full logistics. Pleasantries last.
+  capture:
+    - "Unique discussions (topic + factual summary + who took part, by name)"
+    - "Events with date, time, venue, location, conference link, registration link, host/contact"
+    - "Announcements / decisions / important information"
+    - "Links & resources shared"
+  pleasantries_last: true        # bucket greetings at the end (low value)
+  pleasantry_keywords:           # messages that are ONLY these go to the bucket
+    - happy birthday
+    - birthday
+    - many happy returns
+    - congratulations
+    - congrats
+    - thank you
+    - thanks
+    - thx
+    - blessings
+    - god bless
+    - good morning
+    - good night
+    - welcome
+    - well done
+    - rip
+    - condolences
+  drop_system_messages: true     # WhatsApp notices (encryption, added/left, etc.)
+  system_message_patterns:       # regex (case-insensitive) — dropped before analysis
+    - "messages and calls are end-to-end encrypted"
+    - "joined using this group's invite link"
+    - "added you|added .*|left$| left the group|removed "
+    - "changed (the group|their phone number|this group's|the subject)"
+    - "changed to a new phone number"
+    - "you were added|created group|changed the group description|changed this group's icon"
+    - "disappearing messages|turned on disappearing|turned off disappearing"
+    - "this message was deleted|you deleted this message|<media omitted>|null|<this message was edited>"
+    - "missed (voice|video) call|tap to call back"
+    - "security code changed"
+  min_messages_per_group: 3      # below this, a group is listed as 'low activity' only
+  event_link_domains:            # URLs from these are captured as conference/reg links
+    - zoom.us
+    - meet.google.com
+    - teams.microsoft.com
+    - teams.live.com
+    - webex.com
+    - youtube.com
+    - youtu.be
+    - eventbrite
+    - forms.gle
+    - docs.google.com
+    - bit.ly
+    - tinyurl
+    - lu.ma
 
 scrape:
   headless: false                # must be visible the first time to scan the QR code

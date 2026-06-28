@@ -180,35 +180,28 @@ def show_plan(cfg: dict, plan: dict) -> None:
     print("═" * 64 + "\n")
 
 
-def export_csv(cfg: dict) -> None:
+EVENT_COLS = ["status", "title", "date", "time", "venue", "location",
+              "conference_link", "registration_link", "contact", "host", "group"]
+
+
+def export_events(cfg: dict) -> None:
+    """Always export the events as their own JSON + CSV (a fixed deliverable)."""
     a = read_json(p(cfg, "processed") / "analysis.json") or {}
-    out = p(cfg, "output") / "events.csv"
-    with open(out, "w", newline="", encoding="utf-8") as fh:
+    events = [{k: e.get(k, "") for k in EVENT_COLS} for e in a.get("events", [])]
+    write_json(p(cfg, "output") / "events.json",
+               {"window": a.get("window", {}), "count": len(events), "events": events})
+    with open(p(cfg, "output") / "events.csv", "w", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh)
-        w.writerow(["status", "title", "date", "time", "venue", "group"])
-        for e in a.get("events", []):
-            w.writerow([e["status"], e["title"], e.get("date", ""), e.get("time", ""),
-                        e.get("venue", ""), e["group"]])
-    # a compact stats csv too
-    s = a.get("stats", {})
-    with open(p(cfg, "output") / "summary.csv", "w", newline="", encoding="utf-8") as fh:
-        w = csv.writer(fh)
-        w.writerow(["metric", "value"])
-        for k in ("total_unique", "active_participants", "groups_count", "avg_per_day",
-                  "images_shared", "links_shared", "questions_asked"):
-            w.writerow([k, s.get(k, "")])
-        w.writerow(["sentiment_net", s.get("sentiment", {}).get("net_score", "")])
-        d = a.get("dedup", {})
-        w.writerow(["duplicate_copies_removed", d.get("duplicate_copies_removed", "")])
-        w.writerow(["cross_group_duplicate_topics", d.get("cross_group_duplicate_topics", "")])
-    LOG.info("CSV exports -> %s , summary.csv", out.name)
+        w.writerow(EVENT_COLS)
+        for e in events:
+            w.writerow([e[k] for k in EVENT_COLS])
+    LOG.info("Events export -> events.json , events.csv (%d events)", len(events))
 
 
 def export_json(cfg: dict) -> None:
     src = p(cfg, "processed") / "analysis.json"
     if src.exists():
         shutil.copy(src, p(cfg, "output") / "report_data.json")
-        LOG.info("JSON export -> report_data.json")
 
 
 def data_signature(cfg: dict, plan: dict) -> str:
@@ -286,15 +279,11 @@ def execute(cfg: dict, plan: dict, skip_scrape: bool, force_scrape: bool = False
 
 
 def _render_outputs(cfg: dict, plan: dict, outdir) -> None:
-    """Render HTML/PDF/CSV/JSON from the current analysis.json (no data work)."""
-    LOG.info("=== Building report ===")
+    """Fixed deliverables from analysis.json: report.html + report.pdf + events.json + events.csv."""
+    LOG.info("Building report.html + report.pdf + events.json + events.csv")
     report_mod.run(cfg)
-    if "pdf" in plan["outputs"]:
-        render_pdf.run(cfg)
-    if "csv" in plan["outputs"]:
-        export_csv(cfg)
-    if "json" in plan["outputs"]:
-        export_json(cfg)
+    render_pdf.run(cfg)
+    export_events(cfg)
     print("\n✔ Report ready in:", outdir)
     for f in sorted(outdir.glob("*")):
         if f.suffix in {".pdf", ".html", ".csv", ".json"}:

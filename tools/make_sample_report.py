@@ -26,7 +26,6 @@ SAMPLES.mkdir(exist_ok=True)
 
 START, END = dt.date(2025, 6, 1), dt.date(2025, 6, 21)
 
-# ── a fully fake analysis payload (matches analyze.py's schema) ───────────────
 trend = []
 counts = [4, 9, 6, 2, 1, 12, 15, 7, 5, 8, 3, 2, 10, 14, 6, 4, 9, 7, 3, 11, 16]
 d = START
@@ -34,94 +33,99 @@ for c in counts:
     trend.append({"date": d.isoformat(), "count": c})
     d += dt.timedelta(days=1)
 
+# ── a fully fake analysis payload (matches the current analyze.py schema) ─────
 FAKE = {
     "window": {"start": START.isoformat(), "end": END.isoformat()},
     "generated_at": dt.datetime.now().isoformat(),
-    "dedup": {"total_considered": 168, "unique_messages": 142,
+    "criteria": {"capture": [
+        "Unique discussions (topic + factual summary + who took part, by name)",
+        "Events with date, time, venue, location, conference link, registration link, host/contact",
+        "Announcements / decisions / important information",
+        "Links & resources shared",
+    ], "pleasantries_last": True, "min_messages_per_group": 3},
+    "groups_covered": ["Riverside Community Volunteers", "Downtown Wellness Group",
+                       "City Run Club Organizers"],
+    "dedup": {"total_considered": 142, "unique_messages": 116,
               "duplicate_copies_removed": 26, "cross_group_duplicate_topics": 5},
-    "overall_health": {"avg_positivity": 74, "avg_argumentativeness": 21},
-    "executive_summary": (
-        "Community activity was healthy and collaborative across the three groups this period, "
-        "with 142 unique messages from 18 members. Conversation centred on the upcoming Wellness "
-        "Workshop and the Community Day clean-up, both of which drew strong volunteer sign-ups. "
-        "Sentiment was largely positive; the only friction was a brief, respectful disagreement "
-        "over the new event-fee policy, which resolved constructively. Five topics were forwarded "
-        "across multiple groups and de-duplicated for this report."
-    ),
     "stats": {
-        "total_unique": 142, "active_participants": 18, "groups_count": 3,
-        "avg_per_day": 6.8, "images_shared": 19, "links_shared": 11, "questions_asked": 23,
-        "per_category": [["Events", 41], ["Volunteering", 33], ["Discussions", 28],
-                         ["Knowledge", 22], ["Announcements", 12], ["Other", 6]],
-        "per_group": [["Riverside Community Volunteers", 64],
-                      ["Downtown Wellness Group", 47],
-                      ["City Run Club Organizers", 31]],
-        "sentiment": {"positive": 78, "neutral": 51, "negative": 13, "net_score": 45.8},
-        "top_contributors": [["Asha R.", 21], ["Ben T.", 18], ["Carlos M.", 16],
-                             ["Dana K.", 14], ["Evan L.", 12], ["Farah S.", 11],
-                             ["Gita P.", 9], ["Hassan Q.", 8], ["Ivy W.", 7], ["Jordan N.", 6]],
-        "trend": trend,
-        "busiest_day": {"date": "2025-06-21", "count": 16},
+        "total_unique": 116, "active_participants": 18, "groups_count": 3,
+        "discussions_count": 6, "events_count": 4, "pleasantries_count": 23,
+        "links_shared": 11, "images_shared": 9, "avg_per_day": 5.5,
+        "per_group": [["Riverside Community Volunteers", 52], ["Downtown Wellness Group", 39],
+                      ["City Run Club Organizers", 25]],
+        "top_contributors": [["Asha R.", 18], ["Ben T.", 15], ["Carlos M.", 13], ["Dana K.", 11]],
+        "trend": trend, "busiest_day": {"date": "2025-06-21", "count": 16},
     },
-    "groups": {
-        "Riverside Community Volunteers": {
-            "summary": ("The busiest group, focused on organising the Community Day clean-up and the "
-                        "Wellness Workshop. Coordination was smooth and members were quick to volunteer "
-                        "for setup and registration roles."),
-            "highlights": ["5 volunteers confirmed for the June 14 setup",
-                           "First-aid refresher praised by attendees",
-                           "Discussion on recruiting weekend volunteers"],
-            "health_label": "Healthy", "positivity": 79, "argumentativeness": 14,
-            "repeated_topics": ["Community Day logistics"], "message_count": 64,
-            "notes": "high collaboration",
-        },
-        "Downtown Wellness Group": {
-            "summary": ("Supportive, knowledge-sharing tone with daily wellness tips and a shared "
-                        "recording of the nutrition talk. A short debate on introducing a small class "
-                        "fee stayed civil and ended in agreement to trial it."),
-            "highlights": ["Nutrition talk recording shared",
-                           "Civil debate on class-fee policy",
-                           "Morning-stretch tip thread"],
-            "health_label": "Mixed", "positivity": 71, "argumentativeness": 28,
-            "repeated_topics": [], "message_count": 47, "notes": "one resolved disagreement",
-        },
-        "City Run Club Organizers": {
-            "summary": ("Planning the Beginners Training Session and finalising the new running route. "
-                        "A recurring route debate resurfaced but was settled after referencing the "
-                        "updated plan."),
-            "highlights": ["Beginners Training Session scheduled",
-                           "Route plan finalised", "Pacer mentors requested"],
-            "health_label": "Differing Opinions", "positivity": 68, "argumentativeness": 33,
-            "repeated_topics": ["new route plan"], "message_count": 31, "notes": "",
-        },
-    },
-    "events": [
-        {"title": "Wellness Workshop (Beginners)", "date": "2025-06-28", "time": "6:00 PM",
-         "venue": "Riverside Community Hall", "group": "Riverside Community Volunteers",
-         "status": "Upcoming", "_sort": "2025-06-28"},
-        {"title": "Community Day Clean-Up", "date": "2025-07-05", "time": "9:00 AM",
-         "venue": "Central Park", "group": "Riverside Community Volunteers",
-         "status": "Upcoming", "_sort": "2025-07-05"},
-        {"title": "Beginners Training Session", "date": "2025-06-30", "time": "7:30 AM",
-         "venue": "Civic Auditorium", "group": "City Run Club Organizers",
-         "status": "Upcoming", "_sort": "2025-06-30"},
-        {"title": "Monthly Members Meetup", "date": "", "time": "", "venue": "TBD",
-         "group": "Downtown Wellness Group", "status": "Undated", "_sort": ""},
-        {"title": "Nutrition Talk", "date": "2025-06-12", "time": "5:00 PM",
-         "venue": "Online", "group": "Downtown Wellness Group", "status": "Past", "_sort": "2025-06-12"},
-        {"title": "Spring Community Walk", "date": "2025-06-07", "time": "8:00 AM",
-         "venue": "Riverside Trail", "group": "Riverside Community Volunteers",
-         "status": "Past", "_sort": "2025-06-07"},
+    "highlights": (
+        "The Wellness Workshop on 28 June drew strong sign-ups, with five volunteers confirmed for "
+        "setup and the registration link shared across two groups. The City Run Club finalised its new "
+        "route plan after a recurring debate, and a beginners training session was scheduled for 30 June. "
+        "A proposal to trial a small class fee was discussed civilly and agreed for a one-month trial. "
+        "The Community Day clean-up on 5 July is now open for volunteers."
+    ),
+    "discussions": [
+        {"topic": "Wellness Workshop volunteer roster", "category": "Volunteering",
+         "summary": "Five volunteers confirmed for the 28 June setup; Asha to coordinate the registration desk. "
+                    "Members asked for help recruiting weekend volunteers.",
+         "participants": ["Asha R.", "Ben T.", "Meena S.", "Suresh P."], "participant_count": 4,
+         "groups": ["Riverside Community Volunteers"], "message_count": 14,
+         "links": ["https://riverside-centre.org/signup"]},
+        {"topic": "New running route plan", "category": "Discussion",
+         "summary": "A recurring debate over the new route was resolved after referencing section 3 of the "
+                    "updated plan; the route is now finalised.",
+         "participants": ["Vikram J.", "Nisha K.", "Arjun M."], "participant_count": 3,
+         "groups": ["City Run Club Organizers"], "message_count": 9, "links": []},
+        {"topic": "Trial class-fee policy", "category": "Announcement",
+         "summary": "Proposal to introduce a small class fee was debated respectfully and agreed for a "
+                    "one-month trial starting in July.",
+         "participants": ["Lakshmi V.", "Kiran D.", "Deepa N."], "participant_count": 3,
+         "groups": ["Downtown Wellness Group"], "message_count": 8, "links": []},
+        {"topic": "Nutrition talk recording", "category": "Knowledge",
+         "summary": "Recording of last week's nutrition talk was requested and shared.",
+         "participants": ["Kiran D.", "Deepa N."], "participant_count": 2,
+         "groups": ["Downtown Wellness Group"], "message_count": 4,
+         "links": ["https://example.org/nutrition-talk"]},
+        {"topic": "Pacer mentors for new runners", "category": "Volunteering",
+         "summary": "Three pacers requested to mentor beginners at upcoming sessions.",
+         "participants": ["Arjun M.", "Nisha K."], "participant_count": 2,
+         "groups": ["City Run Club Organizers"], "message_count": 5, "links": []},
+        {"topic": "First-aid refresher feedback", "category": "Discussion",
+         "summary": "Members praised last Saturday's first-aid refresher and suggested repeating it quarterly.",
+         "participants": ["Anita G.", "Ramesh K."], "participant_count": 2,
+         "groups": ["Riverside Community Volunteers"], "message_count": 6, "links": []},
     ],
+    "events": [
+        {"title": "Wellness Workshop (Beginners)", "date": "28 June 2025", "time": "6:00 PM",
+         "venue": "Riverside Community Hall", "location": "12 Riverside Rd",
+         "conference_link": "", "registration_link": "https://riverside-centre.org/signup",
+         "contact": "Priya, 555-0142", "host": "Kaushani D.",
+         "group": "Riverside Community Volunteers", "status": "Upcoming", "_sort": "2025-06-28"},
+        {"title": "Beginners Training Session", "date": "30 June 2025", "time": "7:30 AM",
+         "venue": "Civic Auditorium", "location": "Downtown",
+         "conference_link": "", "registration_link": "", "contact": "Arjun M.", "host": "",
+         "group": "City Run Club Organizers", "status": "Upcoming", "_sort": "2025-06-30"},
+        {"title": "Community Day Clean-Up", "date": "5 July 2025", "time": "9:00 AM",
+         "venue": "Central Park", "location": "", "conference_link": "",
+         "registration_link": "", "contact": "Suresh P.", "host": "",
+         "group": "Riverside Community Volunteers", "status": "Upcoming", "_sort": "2025-07-05"},
+        {"title": "Nutrition Talk (online)", "date": "12 June 2025", "time": "5:00 PM",
+         "venue": "", "location": "Online", "conference_link": "https://meet.google.com/abc-defg-hij",
+         "registration_link": "", "contact": "", "host": "Dr. Lee",
+         "group": "Downtown Wellness Group", "status": "Past", "_sort": "2025-06-12"},
+    ],
+    "pleasantries": {
+        "count": 23, "by_type": {"thanks": 11, "birthday": 7, "congratulations": 3, "good morning": 2},
+        "top_people": [["Anita G.", 4], ["Ben T.", 3], ["Lakshmi V.", 3], ["Meena S.", 2]],
+    },
+    "low_activity_groups": [{"group": "Neighbourhood Notices", "messages": 2}],
 }
 
 
 def main():
     cfg = load_config()
-    cfg["report"]["title"] = "Riverside Community — WhatsApp Intelligence Report"
+    cfg["report"]["title"] = "Riverside Community — WhatsApp Digest"
     cfg["report"]["subtitle"] = "Sample Report · Synthetic Data"
     cfg["report"]["organisation"] = "Riverside Community"
-    cfg["keywords"] = ["Community", "Wellness", "Run Club"]
 
     env = Environment(loader=FileSystemLoader(str(ROOT / "templates")),
                       autoescape=select_autoescape(["html"]))

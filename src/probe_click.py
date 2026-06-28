@@ -1,7 +1,7 @@
 """One-shot diagnostic: open ONE chat and report exactly what happens.
 
 Run:
-    python probe_click.py "AOL-Houston Volunteers"
+    python probe_click.py "My Group Name"
 
 It tries to locate + click the chat, then prints which click method worked and
 what the opened conversation's DOM looks like (so we can pin the right selectors
